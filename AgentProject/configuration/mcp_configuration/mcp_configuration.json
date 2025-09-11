@@ -4,7 +4,7 @@
             "command": "uv",
             "args": [
                 "--directory",
-				"chatbot_console/mcp_servers/filesystem",
+				"AgentProject/mcp_servers/filesystem",
 				"run",
 				"filesystem.py"
             ]
@@ -13,7 +13,7 @@
             "command": "uv",
             "args": [
                 "--directory",
-				"chatbot_console/mcp_servers/word_editor",
+				"AgentProject/mcp_servers/word_editor",
 				"run",
 				"word_editor.py"
             ]

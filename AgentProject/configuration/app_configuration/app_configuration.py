@@ -47,5 +47,5 @@ class AppConfiguration(BaseSettings):
     RAG_SCORE_THRESHOLD: float = 0.68
 
     #mcp path config
-    MCP_CONFIGURATION_JSON_PATH: str = 'chatbot_console\\configuration\\mcp_configuration\\mcp_configuration.json' 
+    MCP_CONFIGURATION_JSON_PATH: str = 'AgentProject\\configuration\\mcp_configuration\\mcp_configuration.json' 
 
