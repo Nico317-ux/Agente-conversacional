@@ -1,0 +1,23 @@
+{ 
+    "mcpServers": {
+        "filesystem":{
+            "command": "uv",
+            "args": [
+                "--directory",
+				"chatbot_console/mcp_servers/filesystem",
+				"run",
+				"filesystem.py"
+            ]
+        },
+        "word_editor": {
+            "command": "uv",
+            "args": [
+                "--directory",
+				"chatbot_console/mcp_servers/word_editor",
+				"run",
+				"word_editor.py"
+            ]
+        }
+    },
+    "inputs": []
+}
