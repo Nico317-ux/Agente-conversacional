@@ -17,15 +17,13 @@ class TextGenerationInference:
                  model_name: str,
                  provider: str,
                  default_max_tokens: int,
-                 default_temperature: float,
-                 system_prompt: Optional[str] = None):
+                 default_temperature: float):
     
 
         self.model_name = model_name
         self.hf_token = hf_token
         self.default_max_tokens = default_max_tokens
         self.default_temperature = default_temperature
-        self.system_prompt = system_prompt or ''
         self.provider = provider
 
         self.llm = HuggingFaceEndpoint(
