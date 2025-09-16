@@ -21,7 +21,6 @@ if __name__ == '__main__':
         
         topic = await topic_task
         emotion_label = await emotion_task
-        print(topic, emotion_label)
         optimal_blend = personality_manager.calculate_dynamic_blend(
             emotion_label, 
             topic
@@ -42,9 +41,10 @@ if __name__ == '__main__':
         return personality_prompt, user_prompt
 
     async def main():
-        user_prompt = 'Dime que me quieres'
+        user_prompt = 'Hola como estas?'
         personality_prompt, _ = await process_user_input(user_prompt, personality_manager, emotion_analyzer)
-        messages = message_chat(user_prompt= user_prompt, personality_prompt=personality_prompt, system_prompt=config.SYSTEM_PROMPT)
+        messages = message_chat(user_prompt= user_prompt, personality_prompt= personality_prompt,system_prompt=config.SYSTEM_PROMPT)
+        print(messages)
         async for chunk in llm_inference.agenerate(messages):
             print(chunk, end="", flush=True)
 

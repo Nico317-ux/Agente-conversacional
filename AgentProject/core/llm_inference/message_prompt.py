@@ -1,6 +1,7 @@
 from typing import Optional, List, Dict
 from langchain_core.prompts import MessagesPlaceholder, ChatPromptTemplate
 from langchain_core.messages import AIMessage, HumanMessage
+from dataclasses import dataclass
 
 def message_chat(user_prompt: str,
                 system_prompt: str,
@@ -9,8 +10,8 @@ def message_chat(user_prompt: str,
                 rag_context: Optional[str] = None):
 
             chat_prompt_template = ChatPromptTemplate.from_messages([
-                ('system', '''{system_prompt} 
-                {personality_prompt} 
+                ('system', '''{personality_prompt} 
+                {system_prompt}  
                 {rag_context}'''),
                 MessagesPlaceholder(variable_name= 'history'),
                 ('human', '{user_prompt}')

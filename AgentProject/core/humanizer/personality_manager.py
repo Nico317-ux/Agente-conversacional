@@ -67,42 +67,29 @@ class DinamicPersonalityManager:
 
         self.personality_prompt_template = PromptTemplate(
             template = '''
-            Tu personalidad {primary_name} ({primary_weight}%) influenciado por {secondary_name} ({secondary_weight}%).
-            Expresión de género: {gender_name}
+            [ROL Y PERSONA ACTUAL]
+            Tu rol es adoptar una personalidad híbrida y matizada. Actualmente, tu comportamiento se rige por la siguiente mezcla:
+            - {primary_weight}% de tu personalidad base '{primary_name}'.
+            - {secondary_weight}% de tu personalidad base '{secondary_name}'.
+            - Tu expresión de género asignada es '{gender_name}'.
+            El objetivo de esta mezcla es sonar {reasoning_summary}.
 
-            DESCRIPCIÓN DE PERSONALIDAD:
-            {primary_description}
-            Influencias de {secondary_name}: {secondary_description}
+            [DIRECTRICES DE ACTITUD Y TONO]
+            Para lograrlo, sigue estas órdenes directas:
+            - **Tono Principal:** {main_tone_directive}
+            - **Actitud Clave:** {key_attitude_directive}
+            - **Toque Secundario:** {secondary_touch_directive}
+            - **Comunicación de Género:** {gender_style_directive}
 
-            RASGOS PSICOLÓGICOS:
-            - Apertura: {openness}% (curiosidad, creatividad)
-            - Responsabilidad: {conscientiousness}% (organización, confiabilidad)
-            - Extraversión: {extraversion}% (sociabilidad, energía)
-            - Amabilidad: {agreeableness}% (empatía, cooperación)
-            - Estabilidad emocional: {emotional_stability}% (resiliencia, calma)
-
-            ESTILO COMUNICATIVO:
-            - Tono: {tone}
-            - Formalidad: {formality}
-            - Humor: {humor}
-            - Características de género: {gender_enhancements}
-
-            CONTEXTO ACTUAL: {reasoning}
-
-            DIRECTRICES:
-            {behavioral_guidelines}
-
-            INCORPORA ESTA PERSONALIDAD DE MANERA NATURAL Y COHERENTE EN TODAS TUS RESPUESTAS.
-            ADAPTA TU COMUNICACIÓN AL GÉNERO {gender_name_upper} SUTILMENTE.
+            Internaliza estas directrices y deja que guíen tu elección de palabras de forma natural. NO describas tu personalidad; DEMUÉSTRALA.
             ''',
             input_variables= [
-                "primary_name", "primary_weight", "secondary_name", "secondary_weight",
-                "gender_name", "reasoning", "primary_description", "secondary_description",
-                "openness", "conscientiousness", "extraversion", "agreeableness", 
-                "emotional_stability", "tone", "formality", "humor", "gender_enhancements",
-                "behavioral_guidelines", "gender_name_upper"
+                "primary_name", "secondary_name", "primary_weight", "secondary_weight", "gender_name",
+                "reasoning_summary", "main_tone_directive", "key_attitude_directive",
+                "secondary_touch_directive", "gender_style_directive"
             ]
         )
+
         self.set_gender(gender)
         self.set_personality_blend('casual', 'formal', 70, 30, 'Initial balanced state')
     
@@ -232,37 +219,24 @@ class DinamicPersonalityManager:
 
         primary = self.config['base_personalities'][self.current_blend.primary]
         secondary = self.config['base_personalities'][self.current_blend.secondary]
-
         gender = self.config['genders'][self.current_gender]
-        traits = self.get_blended_traits()
 
-        primary_style = primary['communication_style']
-        secondary_style = secondary['communication_style']
-
-        tone = f'{primary_style['tone']} con matices de {secondary_style['tone']}'
-        formality = f'Principalmente {primary_style['formality']} con elementos de {secondary_style['formality']}'
-        humor = f'{primary_style['humor']} moderado por {secondary_style['humor']}'
-
+        main_tone_directive = f'Usa un tono principalmente {primary['communication_style']['tone']}.'
+        key_attitude_directive = primary['core_motivations'][0]
+        secondary_touch_directive = f"Asegúrate de mantener siempre un toque de {secondary['communication_style']['tone']} y eficiencia."
+        gender_style_directive = f"Aplica un estilo comunicativo más {gender['description'].split(' ')[-1]}."
+        
         return {
-            "primary_name": primary['name'],
-            "primary_weight": int(self.current_blend.primary_weight * 100),
-            "secondary_name": secondary['name'],
-            "secondary_weight": int(self.current_blend.secondary_weight * 100),
-            "gender_name": gender['name'],
-            "gender_name_upper": gender['name'].upper(),
-            "reasoning": self.current_blend.reasoning,
-            "primary_description": primary['description'],
-            "secondary_description": secondary['description'],
-            "openness": int(traits.openness * 100),
-            "conscientiousness": int(traits.conscientiousness * 100),
-            "extraversion": int(traits.extraversion * 100),
-            "agreeableness": int(traits.agreeableness * 100),
-            "emotional_stability": int((1 - traits.neuroticism) * 100),
-            "tone": tone,
-            "formality": formality,
-            "humor": humor,
-            "gender_enhancements": ", ".join(gender['communication_enhancements']),
-            "behavioral_guidelines": self.get_behavioral_guidelines(primary, secondary)
+        "primary_name": self.current_blend.primary,
+        "secondary_name": self.current_blend.secondary,
+        "primary_weight": int(self.current_blend.primary_weight * 100),
+        "secondary_weight": int(self.current_blend.secondary_weight * 100),
+        "gender_name": gender['name'],
+        "reasoning_summary": self.current_blend.reasoning,
+        "main_tone_directive": main_tone_directive,
+        "key_attitude_directive": key_attitude_directive,
+        "secondary_touch_directive": secondary_touch_directive,
+        "gender_style_directive": gender_style_directive,
         }
     
     def get_behavioral_guidelines(self, primary: Dict, secondary:Dict) -> str:
