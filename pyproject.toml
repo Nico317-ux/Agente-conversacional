@@ -5,5 +5,25 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "assemblyai>=0.44.3",
+    "deepgram-sdk>=4.8.1",
+    "elevenlabs>=2.15.0",
+    "faster-whisper>=1.2.0",
     "langchain>=0.3.27",
+    "langchain-huggingface>=0.3.1",
+    "langgraph>=0.6.7",
+    "langgraph-api>=0.4.39",
+    "langgraph-cli[inmem]>=0.4.2",
+    "pyaudio>=0.2.14",
+    "pydantic-settings>=2.10.1",
+    "sounddevice>=0.5.2",
+    "tiktoken>=0.11.0",
 ]
+
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+

@@ -236,3 +236,4 @@ $RECYCLE.BIN/
 utils/
 database/
 uv.lock
+.langgraph_api/

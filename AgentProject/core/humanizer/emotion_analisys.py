@@ -54,9 +54,9 @@ class LLMEmotionAnalyzer:
                 SystemMessage(content=prompt),
                 HumanMessage(content=user_prompt)
             ]
-            
-            response, _ = self.llm_inference.generate(messages, stream=False)
-            
+            response  = ''
+            async for chunk in self.llm_inference.agenerate(messages):
+                response += chunk
             parsed = self.emotion_parser.parse(response)
 
             for emotion in EmotionLabel:
@@ -66,13 +66,4 @@ class LLMEmotionAnalyzer:
             
         except Exception as e:
             print(f'Error en análisis emocional: {e}')
-            return self._get_fallback_emotion()
-    
-    def _get_fallback_emotion(self) -> Dict:
-        return {
-            'primary_emotion': 'neutral',
-            'secondary_emotion': 'neutral',
-            'stacks': []
-        }
-
-    
+            return EmotionLabel.NEUTRAL

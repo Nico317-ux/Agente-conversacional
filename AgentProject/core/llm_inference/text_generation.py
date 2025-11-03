@@ -1,11 +1,11 @@
-from langchain_core.messages.base import BaseMessage
 from langchain_huggingface import HuggingFaceEndpoint, ChatHuggingFace
-from langchain_core.messages import BaseMessage
+from langchain_core.messages import BaseMessage, SystemMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from typing import List, Dict, Optional, Generator, Union, AsyncGenerator
 import asyncio
+from AgentProject.configuration.app_configuration.app_configuration import AppConfiguration
 from dotenv import load_dotenv
 import os
 
@@ -14,27 +14,40 @@ load_dotenv()
 class TextGenerationInference:
     def __init__(self,
                  hf_token: str,
-                 model_name: str,
-                 provider: str,
                  default_max_tokens: int,
-                 default_temperature: float):
-    
+                 default_temperature: float,
+                 repo_id: str = None,
+                 provider: str = None,
+                 endpoint_url: str = None,
+                 is_endpoint: bool = False):
 
-        self.model_name = model_name
         self.hf_token = hf_token
         self.default_max_tokens = default_max_tokens
         self.default_temperature = default_temperature
+        self.repo_id = repo_id
         self.provider = provider
+        self.endpoint_url = endpoint_url
+        self.is_endpoint = is_endpoint
 
-        self.llm = HuggingFaceEndpoint(
-            repo_id= self.model_name,
-            huggingfacehub_api_token= self.hf_token,
-            max_new_tokens= self.default_max_tokens,
-            temperature= self.default_temperature,
-            streaming= True,
-            provider= self.provider,
-            timeout = 30
-        )
+        if self.is_endpoint:
+            self.llm = HuggingFaceEndpoint(
+                endpoint_url= self.endpoint_url,
+                huggingfacehub_api_token= self.hf_token,
+                max_new_tokens= self.default_max_tokens,
+                temperature= self.default_temperature,
+                streaming= True,
+                timeout= 30
+            )
+        else:
+            self.llm = HuggingFaceEndpoint(
+                repo_id= self.repo_id,
+                huggingfacehub_api_token= self.hf_token,
+                max_new_tokens= self.default_max_tokens,
+                temperature= self.default_temperature,
+                streaming= True,
+                provider= self.provider,
+                timeout = 30
+            )
         
         self.chat_model = ChatHuggingFace(llm= self.llm)
 
@@ -83,9 +96,12 @@ class TextGenerationInference:
             generation_params['tool_choice'] = 'auto'
 
         try:
-            chain = self.chat_model | StrOutputParser()
-            async for chunk in chain.astream(messages_prompt, config={"callbacks": []}, **generation_params):
-                yield chunk
+            response = await asyncio.to_thread(
+                self.chat_model.invoke,
+                messages_prompt,
+                generation_params
+            )
+            yield response.content
             
         except Exception as e:
              yield f"Error during async streaming: {str(e)}"
@@ -113,6 +129,5 @@ class TextGenerationInference:
             | self.chat_model
             | StrOutputParser()
         )
-
 
 

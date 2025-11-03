@@ -1,0 +1,6 @@
+{
+    "dependencies": ["."],
+    "graphs": {
+        "conversational_agent": "./Agents/conversational_agent.py:graph"
+    }
+}

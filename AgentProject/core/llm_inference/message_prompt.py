@@ -1,7 +1,6 @@
 from typing import Optional, List, Dict
 from langchain_core.prompts import MessagesPlaceholder, ChatPromptTemplate
 from langchain_core.messages import AIMessage, HumanMessage
-from dataclasses import dataclass
 
 def message_chat(user_prompt: str,
                 system_prompt: str,
@@ -41,4 +40,3 @@ def message_chat(user_prompt: str,
                 'history': message_history,
                 'user_prompt': user_prompt
             }).to_messages()
-    

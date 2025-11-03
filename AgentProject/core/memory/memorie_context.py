@@ -1,6 +1,7 @@
 import sqlite3
 from typing import List, Dict
 import tiktoken
+import asyncio
 
 class ConversationMemory:
     def __init__(self,
@@ -8,16 +9,16 @@ class ConversationMemory:
                  max_context_tokens: int,
                  session_id: str = 'default'):
         
-        self.conn = sqlite3.connect(db_path)
+        self.db_path = db_path
         self.session_id = session_id
         self.max_context_tokens = max_context_tokens
-        self.tokenizer = tiktoken.get_encoding('cl100k_base') # Tokenizar
+        self.tokenizer = tiktoken.get_encoding('cl100k_base') 
 
-        #Configuracion si la sesion no existe
         self._init_session()
 
     def _init_session(self) -> None:
-        cursor = self.conn.cursor()
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
 
         cursor.execute('SELECT 1 FROM sessions WHERE session_id = ?',
                        (self.session_id,))
@@ -26,21 +27,28 @@ class ConversationMemory:
             cursor.execute('INSERT INTO sessions (session_id) VALUES (?)',
                            (self.session_id,))
             
-            self.conn.commit()
+            conn.commit()
+        conn.close()
     
-    def add_message(self, role: str, content: str) -> None:
+    def _add_message_sync(self, role: str, content: str) -> None:
+        conn = sqlite3.connect(self.db_path)
         tokens = len(self.tokenizer.encode(content))
-        cursor = self.conn.cursor()
+        cursor = conn.cursor()
 
         cursor.execute('''
             INSERT INTO messages (session_id, role, content, tokens)
             VALUES (?, ?, ?, ?)
             ''', (self.session_id, role, content, tokens))
 
-        self.conn.commit()
+        conn.commit()
+        conn.close()
+    
+    async def add_menssage(self, role: str, content: str) -> None:
+        await asyncio.to_thread(self._add_message_sync, role, content)
 
     def get_context(self) -> List[Dict[str, str]]:
-        cursor = self.conn.cursor()
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
 
         cursor.execute('''
         SELECT role, content FROM messages WHERE session_id = ?
@@ -59,15 +67,19 @@ class ConversationMemory:
                 total_tokens += msg_tokens
             else:
                 break
+        conn.close()
         return filtred_messages
     
     def clear(self) -> None:
-        cursor = self.conn.cursor()
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
         cursor.execute(
             '''
             DELETE FROM messages WHERE session_id = ?
             ''', (self.session_id,))
-        self.conn.commit()
+        conn.commit()
+        conn.close()
     
     def close(self) -> None:
-        self.conn.close()
+        conn = sqlite3.connect(self.db_path)
+        conn.close()

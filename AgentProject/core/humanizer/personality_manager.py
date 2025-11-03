@@ -129,7 +129,9 @@ class DinamicPersonalityManager:
                 SystemMessage(content= prompt),
                 HumanMessage(content= user_prompt)
             ]
-            response, _ = self.llm_inference.generate(messages, stream = False)
+            response  = ''
+            async for chunk in self.llm_inference.agenerate(messages):
+                response += chunk
             parsed = self.topic_parser.parse(response)
             for topic in ConversationTopic:
                 if topic.value == parsed.topic:
